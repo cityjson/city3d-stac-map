@@ -20,6 +20,7 @@ import {
   LuPackage,
   LuPalette,
   LuScanLine,
+  LuBox,
   LuTag,
   LuText,
   LuTreeDeciduous,
