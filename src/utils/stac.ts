@@ -143,27 +143,32 @@ export function isCollectionInBbox(
     // A global collection is always there
     return true;
   }
-  const collectionBbox = collection?.extent?.spatial?.bbox?.[0];
-  if (collectionBbox) {
-    const collectionContainsViewport =
-      collectionBbox[0] < bbox[0] &&
-      collectionBbox[1] < bbox[1] &&
-      collectionBbox[2] > bbox[2] &&
-      collectionBbox[3] > bbox[3];
-    const noOverlap =
-      collectionBbox[0] > bbox[2] ||
-      collectionBbox[1] > bbox[3] ||
-      collectionBbox[2] < bbox[0] ||
-      collectionBbox[3] < bbox[1];
-    if (noOverlap) return false;
-    // Keep collections visible when zoomed in below the threshold
-    if (collectionContainsViewport) {
-      return zoom != null && zoom < COLLECTION_CONTAINS_VIEWPORT_MAX_ZOOM;
-    }
+  const rawBbox = collection?.extent?.spatial?.bbox?.[0];
+  const collectionBbox = rawBbox && sanitizeBbox(rawBbox);
+  // No bbox or degenerate bbox (e.g. non-WGS84 coordinates clamped to edges) — pass through
+  if (
+    !collectionBbox ||
+    collectionBbox[0] >= collectionBbox[2] ||
+    collectionBbox[1] >= collectionBbox[3]
+  ) {
     return true;
-  } else {
-    return false;
   }
+  const collectionContainsViewport =
+    collectionBbox[0] < bbox[0] &&
+    collectionBbox[1] < bbox[1] &&
+    collectionBbox[2] > bbox[2] &&
+    collectionBbox[3] > bbox[3];
+  const noOverlap =
+    collectionBbox[0] > bbox[2] ||
+    collectionBbox[1] > bbox[3] ||
+    collectionBbox[2] < bbox[0] ||
+    collectionBbox[3] < bbox[1];
+  if (noOverlap) return false;
+  // Keep collections visible when zoomed in below the threshold
+  if (collectionContainsViewport) {
+    return zoom != null && zoom < COLLECTION_CONTAINS_VIEWPORT_MAX_ZOOM;
+  }
+  return true;
 }
 
 export function isGlobalCollection(collection: StacCollection) {

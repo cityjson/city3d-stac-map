@@ -1,5 +1,6 @@
 import { useStore } from "@/store";
-import { collectionToFeature } from "@/utils/stac";
+import { sanitizeBbox } from "@/utils/bbox";
+import { collectionToFeature, getCollectionExtents } from "@/utils/stac";
 
 export function useItems() {
   const staticItems = useStore((store) => store.staticItems);
@@ -15,7 +16,10 @@ export function useItems() {
 export function useCollectionBounds() {
   const collections = useStore((store) => store.collections);
   const filteredCollections = useStore((store) => store.filteredCollections);
-  return (filteredCollections || collections)?.map((collection) =>
-    collectionToFeature(collection)
-  );
+  return (filteredCollections || collections)
+    ?.filter((collection) => {
+      const bbox = sanitizeBbox(getCollectionExtents(collection));
+      return bbox && bbox[0] < bbox[2] && bbox[1] < bbox[3];
+    })
+    .map((collection) => collectionToFeature(collection));
 }

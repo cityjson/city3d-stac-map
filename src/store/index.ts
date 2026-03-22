@@ -67,7 +67,7 @@ export const useStore = create<State>()(
       ...createWebMapLinksSlice(...a),
       fillColor: [207, 63, 2, 50] as [number, number, number, number],
       lineColor: [207, 63, 2, 100] as [number, number, number, number],
-      lineWidth: 2,
+      lineWidth: 3,
     }),
     {
       name: "stac-map-settings",

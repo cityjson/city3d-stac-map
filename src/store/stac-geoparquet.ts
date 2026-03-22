@@ -11,6 +11,8 @@ export interface StacGeoparquetTable {
 export interface StacGeoparquetState {
   stacGeoparquetTable: StacGeoparquetTable | null;
   setStacGeoparquetTable: (table: StacGeoparquetTable | null) => void;
+  stacGeoparquetHref: string | null;
+  setStacGeoparquetHref: (href: string | null) => void;
   stacGeoparquetItemId: string | null;
   setStacGeoparquetItemId: (id: string | null) => void;
 }
@@ -26,6 +28,8 @@ export const createStacGeoparquetState: StateCreator<
     set({
       stacGeoparquetTable: table,
     }),
+  stacGeoparquetHref: null,
+  setStacGeoparquetHref: (href) => set({ stacGeoparquetHref: href }),
   stacGeoparquetItemId: null,
   setStacGeoparquetItemId: (id) =>
     set({

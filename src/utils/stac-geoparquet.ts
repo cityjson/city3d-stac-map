@@ -96,6 +96,7 @@ export async function fetchStacGeoparquetDatetimeBounds({
     select: `MIN(${startDatetimeColumnName}) as start, MAX(${endDatetimeColumnName}) as end`,
   });
   const row = result.toArray().map((row) => row.toJSON())[0];
+  if (row.start == null || row.end == null) return null;
   return {
     start: new Date(row.start),
     end: new Date(row.end),

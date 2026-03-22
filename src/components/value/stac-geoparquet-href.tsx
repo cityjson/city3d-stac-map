@@ -20,12 +20,19 @@ export default function StacGeoparquetHref({ href, connection }: Props) {
   const setStacGeoparquetTable = useStore(
     (store) => store.setStacGeoparquetTable
   );
+  const setStacGeoparquetHref = useStore(
+    (store) => store.setStacGeoparquetHref
+  );
   const result = useStacGeoparquetTable({
     href,
     connection,
     datetimeFilter,
     hivePartitioning,
   });
+
+  useEffect(() => {
+    setStacGeoparquetHref(href);
+  }, [href, setStacGeoparquetHref]);
 
   useEffect(() => {
     if (result.data?.geometryType && result.data.table)

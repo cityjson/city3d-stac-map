@@ -55,6 +55,21 @@ export default function Value({ value }: { value: StacValue }) {
     return value.links?.filter((link) => link.rel === "item");
   }, [value]);
 
+  const collectionMirrorHref = useMemo(() => {
+    if (value.type !== "Collection") return null;
+    const assets = (value as StacCollection).assets;
+    if (!assets) return null;
+    for (const asset of Object.values(assets)) {
+      if (
+        asset.type === "application/vnd.apache.parquet" &&
+        asset.roles?.includes("collection-mirror")
+      ) {
+        return asset.href;
+      }
+    }
+    return null;
+  }, [value]);
+
   useEffect(() => {
     document.title = "STAC Map for 3D City Models | " + getStacValueTitle(value);
   }, [value]);
@@ -114,9 +129,19 @@ export default function Value({ value }: { value: StacValue }) {
           value.type === "FeatureCollection" && (
             <StacGeoparquetHref href={href} connection={connection} />
           )}
+        {collectionMirrorHref && connection && (
+          <StacGeoparquetHref
+            href={collectionMirrorHref}
+            connection={connection}
+          />
+        )}
         {!collectionsHref && childLinks && <ChildLinks links={childLinks} />}
-        {itemLinks && <ItemLinks links={itemLinks} />}
-        {rootHref && <RootHref value={value} href={rootHref} />}
+        {!collectionMirrorHref && itemLinks && (
+          <ItemLinks links={itemLinks} />
+        )}
+        {!collectionMirrorHref && rootHref && (
+          <RootHref value={value} href={rootHref} />
+        )}
         {(value.type === "Collection" || value.type === "FeatureCollection") &&
           items &&
           items?.length > 0 && <Items items={items} value={value} />}
