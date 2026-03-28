@@ -98,7 +98,7 @@ export default function Collections({
           {collections && collectionsToShow && (
             <>
               {collections.length > 1 && (
-                <Popover.Root>
+                <Popover.Root positioning={{ placement: "right-start" }}>
                   <Popover.Trigger asChild>
                     <Button variant="outline" size="sm">
                       <LuFilter /> Filter
@@ -109,7 +109,8 @@ export default function Collections({
                       <Popover.Content
                         maxH="80vh"
                         overflowY="auto"
-                        minW="320px"
+                        minW="400px"
+                        css={{ opacity: 1 }}
                       >
                         <Popover.Arrow />
                         <Popover.Body>

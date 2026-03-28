@@ -3,22 +3,58 @@ import { useStacJson } from "@/hooks/stac";
 import { useStore } from "@/store";
 import type { StacValue } from "@/types/stac";
 import { getLink, getStacValueTitle, getStacValueType } from "@/utils/stac";
-import { Breadcrumb, HStack } from "@chakra-ui/react";
+import { Breadcrumb, HStack, IconButton } from "@chakra-ui/react";
 import { useMemo } from "react";
+import { LuArrowLeft, LuHouse } from "react-icons/lu";
 import type { StacLink } from "stac-ts";
 
 export default function Breadcrumbs({ value }: { value: StacValue }) {
+  const setHref = useStore((store) => store.setHref);
+  const selfLink = getLink(value, "self");
+  const rootLink = getLink(value, "root");
+  const parentLink = getLink(value, "parent");
+  const collectionLink = getLink(value, "collection");
+
+  const backLink = parentLink || collectionLink;
+  const showBack = backLink && backLink.href !== selfLink?.href;
+  const showHome =
+    rootLink &&
+    rootLink.href !== selfLink?.href &&
+    rootLink.href !== backLink?.href;
+
   return (
-    <Breadcrumb.Root size={"sm"}>
-      <Breadcrumb.List flexWrap="wrap">
-        {getBreadcrumbLink(value)}
-        <Breadcrumb.Item>
-          <Breadcrumb.CurrentLink>
-            <HStack whiteSpace="nowrap">{getStacValueType(value)}</HStack>
-          </Breadcrumb.CurrentLink>
-        </Breadcrumb.Item>
-      </Breadcrumb.List>
-    </Breadcrumb.Root>
+    <HStack gap={1}>
+      {showHome && (
+        <IconButton
+          size="2xs"
+          variant="ghost"
+          aria-label="Go to catalog root"
+          onClick={() => setHref(rootLink.href)}
+        >
+          <LuHouse />
+        </IconButton>
+      )}
+      {showBack && (
+        <IconButton
+          size="2xs"
+          variant="ghost"
+          aria-label="Go back"
+          onClick={() => setHref(backLink.href)}
+        >
+          <LuArrowLeft />
+        </IconButton>
+      )}
+      <Breadcrumb.Root size={"sm"}>
+        <Breadcrumb.List flexWrap="wrap">
+          {getBreadcrumbLink(value)}
+          <Breadcrumb.Item>
+            <Breadcrumb.CurrentLink>
+              <HStack whiteSpace="nowrap">{getStacValueType(value)}</HStack>
+            </Breadcrumb.CurrentLink>
+          </Breadcrumb.Item>
+        </Breadcrumb.List>
+      </Breadcrumb.Root>
+    </HStack>
   );
 }
 

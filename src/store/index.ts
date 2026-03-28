@@ -43,6 +43,8 @@ export interface State
     WebMapLinksState {
   fillColor: [number, number, number, number];
   lineColor: [number, number, number, number];
+  collectionFillColor: [number, number, number, number];
+  collectionLineColor: [number, number, number, number];
   lineWidth: number;
 }
 
@@ -67,6 +69,8 @@ export const useStore = create<State>()(
       ...createWebMapLinksSlice(...a),
       fillColor: [207, 63, 2, 50] as [number, number, number, number],
       lineColor: [207, 63, 2, 100] as [number, number, number, number],
+      collectionFillColor: [59, 130, 246, 50] as [number, number, number, number],
+      collectionLineColor: [59, 130, 246, 100] as [number, number, number, number],
       lineWidth: 3,
     }),
     {

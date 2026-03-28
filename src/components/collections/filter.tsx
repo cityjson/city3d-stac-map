@@ -355,26 +355,35 @@ export default function Filter({
         </Box>
 
         {/* Apply / Applied indicator */}
-        {hasPendingChanges ? (
-          <Button
-            size="sm"
-            colorPalette="orange"
-            onClick={applyFilters}
-            width="full"
-          >
-            <LuCheck />
-            Apply Filters
-          </Button>
-        ) : hasAppliedFilters ? (
-          <Text
-            fontSize="xs"
-            color="fg.subtle"
-            textAlign="center"
-            fontStyle="italic"
-          >
-            Filters applied
-          </Text>
-        ) : null}
+        <Box
+          position="sticky"
+          bottom={0}
+          bg="bg.panel"
+          pt={2}
+          pb={1}
+          zIndex={1}
+        >
+          {hasPendingChanges ? (
+            <Button
+              size="sm"
+              colorPalette="orange"
+              onClick={applyFilters}
+              width="full"
+            >
+              <LuCheck />
+              Apply Filters
+            </Button>
+          ) : hasAppliedFilters ? (
+            <Text
+              fontSize="xs"
+              color="fg.subtle"
+              textAlign="center"
+              fontStyle="italic"
+            >
+              Filters applied
+            </Text>
+          ) : null}
+        </Box>
       </Stack>
     </Stack>
   );

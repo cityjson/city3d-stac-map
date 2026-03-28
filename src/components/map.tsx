@@ -66,6 +66,8 @@ export default function Map() {
   );
   const fillColor = useStore((store) => store.fillColor);
   const lineColor = useStore((store) => store.lineColor);
+  const collectionFillColor = useStore((store) => store.collectionFillColor);
+  const collectionLineColor = useStore((store) => store.collectionLineColor);
   const lineWidth = useStore((store) => store.lineWidth);
   const collectionBounds = useCollectionBounds();
   const items = useItems();
@@ -111,8 +113,10 @@ export default function Map() {
       id: "value",
       data: (value && toGeoJson(value)) || undefined,
       filled: !(items || cogHref),
-      getFillColor: fillColor,
-      getLineColor: lineColor,
+      getFillColor:
+        value?.type === "Collection" ? collectionFillColor : fillColor,
+      getLineColor:
+        value?.type === "Collection" ? collectionLineColor : lineColor,
       getLineWidth: lineWidth,
       lineWidthUnits: "pixels",
     }),
@@ -143,8 +147,8 @@ export default function Map() {
         data: nonGlobalCollectionBounds,
         filled: true,
         getFillColor: (e) =>
-          e.id === hoveredCollection?.id ? fillColor : transparent,
-        getLineColor: lineColor,
+          e.id === hoveredCollection?.id ? collectionFillColor : transparent,
+        getLineColor: collectionLineColor,
         getLineWidth: lineWidth,
         lineWidthUnits: "pixels",
         pickable: true,

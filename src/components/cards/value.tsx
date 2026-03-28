@@ -17,12 +17,14 @@ export default function ValueCard({
   onMouseEnter,
   onMouseLeave,
   footer,
+  accentColor = "249, 115, 22",
 }: {
   value: StacValue;
   isHovered?: boolean;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
   footer?: ReactNode;
+  accentColor?: string;
 }) {
   const setHref = useStore((store) => store.setHref);
   const selfHref = getSelfHref(value);
@@ -34,8 +36,8 @@ export default function ValueCard({
       size={"sm"}
       variant={"subtle"}
       borderWidth={1}
-      borderColor={isHovered ? "rgba(249, 115, 22, 0.5)" : "border"}
-      bg={isHovered ? "rgba(249, 115, 22, 0.06)" : "bg.subtle"}
+      borderColor={isHovered ? `rgba(${accentColor}, 0.5)` : "border"}
+      bg={isHovered ? `rgba(${accentColor}, 0.06)` : "bg.subtle"}
       cursor={"pointer"}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
@@ -43,8 +45,8 @@ export default function ValueCard({
       css={{
         transition: "all 0.15s ease",
         "&:hover": {
-          borderColor: "rgba(249, 115, 22, 0.4)",
-          bg: "rgba(249, 115, 22, 0.04)",
+          borderColor: `rgba(${accentColor}, 0.4)`,
+          bg: `rgba(${accentColor}, 0.04)`,
         },
       }}
     >
