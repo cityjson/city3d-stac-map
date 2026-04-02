@@ -7,7 +7,6 @@ A map-first STAC visualizer with native support for 3D city models. Built as par
 
 **Live demo:** [city3d-stac-map](https://cityjson.github.io/city3d-stac-map/?href=https://storage.googleapis.com/city3d-stac/catalog.json)
 
-<!-- TODO: replace with city3d-specific screenshots -->
 <!-- markdownlint-disable MD033 -->
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="img/stac-map-dark.png">
