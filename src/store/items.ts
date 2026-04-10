@@ -32,6 +32,8 @@ export function toSearchKey({ href, collection }: SearchKey): string {
   return `${href}:${collection.id}`;
 }
 
+const staticItemIds = new Set<string>();
+
 export const createItemsSlice: StateCreator<State, [], [], ItemsState> = (
   set,
   get
@@ -47,12 +49,18 @@ export const createItemsSlice: StateCreator<State, [], [], ItemsState> = (
   },
   staticItems: null,
   setStaticItems: (items) => {
+    staticItemIds.clear();
+    items?.forEach((i) => staticItemIds.add(i.id));
     set({ staticItems: items });
   },
   addItem: (item) => {
     const items = get().staticItems;
-    if (!items?.find((i) => i.id === item.id))
+    // Rebuild Set if it's out of sync (e.g. after direct setState in tests)
+    if (!items) staticItemIds.clear();
+    if (!staticItemIds.has(item.id)) {
+      staticItemIds.add(item.id);
       set({ staticItems: [...(items || []), item] });
+    }
   },
   searchedItems: null,
   setSearchedItems: (items) => {

@@ -13,7 +13,9 @@ import {
   SegmentGroup,
   Stack,
 } from "@chakra-ui/react";
+import { useState } from "react";
 import {
+  LuChevronDown,
   LuDownload,
   LuEye,
   LuEyeClosed,
@@ -47,6 +49,11 @@ export default function Items({
   const hasStatic = staticItems && staticItems.length > 0;
   const hasSearched = searchedItems && searchedItems.length > 0;
   const hasBoth = hasStatic && hasSearched;
+
+  const PAGE_SIZE = 50;
+  const [displayCount, setDisplayCount] = useState(PAGE_SIZE);
+  const displayedItems = items.slice(0, displayCount);
+  const hasMore = displayCount < items.length;
 
   const title = `Items (${items.length})`;
   const { map } = useMap();
@@ -137,16 +144,30 @@ export default function Items({
             </Button>
             {listOrCard === "list" ? (
               <List.Root variant={"plain"}>
-                {items.map((item) => (
+                {displayedItems.map((item) => (
                   <ItemListItem key={item.id} item={item} />
                 ))}
               </List.Root>
             ) : (
               <Stack>
-                {items.map((item) => (
+                {displayedItems.map((item) => (
                   <ItemCard key={item.id} item={item} />
                 ))}
               </Stack>
+            )}
+            {hasMore && (
+              <Center>
+                <Button
+                  size="xs"
+                  variant="ghost"
+                  onClick={() =>
+                    setDisplayCount((c) => c + PAGE_SIZE)
+                  }
+                >
+                  <LuChevronDown />
+                  Show more ({items.length - displayCount} remaining)
+                </Button>
+              </Center>
             )}
           </Stack>
         );
