@@ -101,15 +101,23 @@ describe("zoom-based thinning", () => {
     expect(result!.total).toBe(1000);
   });
 
-  test("does not thin when zoom is null", () => {
+  test("applies conservative cap when zoom is null (initial load)", () => {
     const items = makeManyItems(1000);
     const result = filterVisibleItems(items, viewport, null);
-    expect(result!.visible.length).toBe(1000);
+    expect(result!.visible.length).toBeLessThanOrEqual(200);
+    expect(result!.total).toBe(1000);
   });
 
   test("does not thin when below max threshold", () => {
     const items = makeManyItems(150);
     const result = filterVisibleItems(items, viewport, 5);
     expect(result!.visible.length).toBe(150);
+  });
+
+  test("applies thinning even without bbox (initial load protection)", () => {
+    const items = makeManyItems(1000);
+    const result = filterVisibleItems(items, null, null);
+    expect(result!.visible.length).toBeLessThanOrEqual(200);
+    expect(result!.total).toBe(1000);
   });
 });

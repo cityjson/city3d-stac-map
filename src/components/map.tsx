@@ -288,7 +288,17 @@ export default function Map() {
         projection={projection}
         mapStyle={`https://basemaps.cartocdn.com/gl/${mapStyle}/style.json`}
         style={{ zIndex: 0 }}
-        onLoad={() => setIsLoaded(true)}
+        onLoad={() => {
+          setIsLoaded(true);
+          const bounds = mapRef?.current
+            ?.getBounds()
+            .toArray()
+            .flatMap((a) => a);
+          const sanitizedBounds = bounds && sanitizeBbox(bounds);
+          if (sanitizedBounds) setBbox(sanitizedBounds);
+          const initialZoom = mapRef?.current?.getZoom();
+          if (initialZoom !== undefined) setZoom(initialZoom);
+        }}
         onMoveEnd={() => {
           const bbox = mapRef?.current
             ?.getBounds()
