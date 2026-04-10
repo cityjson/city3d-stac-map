@@ -1,4 +1,4 @@
-import { useCollectionBounds, useItems } from "@/hooks/store";
+import { useCollectionBounds, useItems, useVisibleItems } from "@/hooks/store";
 import { useWmtsTileUrl } from "@/hooks/wmts";
 import type { StacValue } from "@/types/stac";
 import { sanitizeBbox } from "@/utils/bbox";
@@ -71,6 +71,7 @@ export default function Map() {
   const lineWidth = useStore((store) => store.lineWidth);
   const collectionBounds = useCollectionBounds();
   const items = useItems();
+  const filteredItems = useVisibleItems();
   const webMapLink = useStore((store) => store.webMapLink);
   const { data: wmtsTileUrl } = useWmtsTileUrl({ webMapLink });
   const [hoveredStacGeoparquetItemId, setHoveredStacGeoparquetItemId] =
@@ -126,7 +127,7 @@ export default function Map() {
     layers.push(
       new GeoJsonLayer({
         id: "items",
-        data: (items as Feature[]) || undefined,
+        data: (filteredItems?.visible as Feature[]) || undefined,
         filled: true,
         getFillColor: (e) =>
           e.id === hoveredItem?.id ? fillColor : transparent,
