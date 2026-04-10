@@ -1,5 +1,7 @@
+import { useMemo } from "react";
 import { useStore } from "@/store";
 import { sanitizeBbox } from "@/utils/bbox";
+import { filterVisibleItems } from "@/utils/items";
 import { collectionToFeature, getCollectionExtents } from "@/utils/stac";
 
 export function useItems() {
@@ -22,4 +24,15 @@ export function useCollectionBounds() {
       return bbox && bbox[0] < bbox[2] && bbox[1] < bbox[3];
     })
     .map((collection) => collectionToFeature(collection));
+}
+
+export function useVisibleItems() {
+  const items = useItems();
+  const bbox = useStore((store) => store.bbox);
+  const zoom = useStore((store) => store.zoom);
+
+  return useMemo(
+    () => filterVisibleItems(items, bbox, zoom),
+    [items, bbox, zoom]
+  );
 }
