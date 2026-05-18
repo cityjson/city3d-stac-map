@@ -21,6 +21,8 @@ export const createHrefSlice: StateCreator<State, [], [], HrefState> = (
       hrefIsParquet: !!href?.endsWith(".parquet"),
       input: href || "",
       value: null,
+      collections: null,
+      filteredCollections: null,
       hoveredCollection: null,
       hoveredItem: null,
       pickedItem: null,

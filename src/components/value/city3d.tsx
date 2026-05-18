@@ -508,10 +508,11 @@ function extractCity3DSummaries(
   ): { min?: number; max?: number; total?: number } | undefined => {
     const value = summaries[key];
     if (value && typeof value === "object" && !Array.isArray(value)) {
-      const range = value as { minimum?: number; maximum?: number };
+      const range = value as { min?: number; max?: number; total?: number };
       return {
-        min: range.minimum,
-        max: range.maximum,
+        min: range.min,
+        max: range.max,
+        total: range.total,
       };
     }
     if (Array.isArray(value) && value.length === 2) {
