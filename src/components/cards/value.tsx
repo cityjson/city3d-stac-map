@@ -16,6 +16,7 @@ export default function ValueCard({
   isHovered = false,
   onMouseEnter,
   onMouseLeave,
+  onClick,
   footer,
   accentColor = "249, 115, 22",
 }: {
@@ -23,6 +24,7 @@ export default function ValueCard({
   isHovered?: boolean;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
+  onClick?: () => void;
   footer?: ReactNode;
   accentColor?: string;
 }) {
@@ -41,7 +43,10 @@ export default function ValueCard({
       cursor={"pointer"}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      onClick={() => selfHref && setHref(selfHref)}
+      onClick={() => {
+        if (onClick) onClick();
+        else if (selfHref) setHref(selfHref);
+      }}
       css={{
         transition: "all 0.15s ease",
         "&:hover": {
@@ -51,7 +56,9 @@ export default function ValueCard({
       }}
     >
       <Card.Body gap={2}>
-        <Card.Title letterSpacing="tight">{getStacValueTitle(value)}</Card.Title>
+        <Card.Title letterSpacing="tight">
+          {getStacValueTitle(value)}
+        </Card.Title>
         <Card.Description as="div">
           {thumbnailAsset && <Thumbnail asset={thumbnailAsset} />}
           {description && (

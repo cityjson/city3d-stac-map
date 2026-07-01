@@ -17,6 +17,7 @@ import Breadcrumbs from "./value/breadcrumbs";
 import Buttons from "./value/buttons";
 import Catalogs from "./value/catalogs";
 import ChildLinks from "./value/child-links";
+import City3D from "./value/city3d";
 import { CogHref, CogSources, PagedCogSources } from "./value/cogs";
 import Description from "./value/description";
 import ItemLinks from "./value/item-links";
@@ -24,7 +25,6 @@ import Items from "./value/items";
 import Links from "./value/links";
 import Properties from "./value/properties";
 import RootHref from "./value/root-href";
-import City3D from "./value/city3d";
 import StacGeoparquetHref from "./value/stac-geoparquet-href";
 
 export default function Value({ value }: { value: StacValue }) {
@@ -71,7 +71,8 @@ export default function Value({ value }: { value: StacValue }) {
   }, [value]);
 
   useEffect(() => {
-    document.title = "STAC Map for 3D City Models | " + getStacValueTitle(value);
+    document.title =
+      "STAC Map for 3D City Models | " + getStacValueTitle(value);
   }, [value]);
 
   useEffect(() => {
@@ -116,12 +117,22 @@ export default function Value({ value }: { value: StacValue }) {
         {catalogs && <Catalogs catalogs={catalogs} />}
         {value.type === "Feature" && (
           <>
-            <City3D properties={value.properties} />
+            <City3D
+              properties={value.properties}
+              assets={value.assets as Record<string, Record<string, unknown>>}
+            />
             <Properties properties={value.properties} />
           </>
         )}
         {value.type === "Collection" && (
-          <City3D summaries={(value as StacCollection).summaries} />
+          <City3D
+            summaries={(value as StacCollection).summaries}
+            assets={
+              (value as StacCollection).assets as
+                | Record<string, Record<string, unknown>>
+                | undefined
+            }
+          />
         )}
         {hrefIsParquet &&
           href &&
@@ -136,9 +147,7 @@ export default function Value({ value }: { value: StacValue }) {
           />
         )}
         {!collectionsHref && childLinks && <ChildLinks links={childLinks} />}
-        {!collectionMirrorHref && itemLinks && (
-          <ItemLinks links={itemLinks} />
-        )}
+        {!collectionMirrorHref && itemLinks && <ItemLinks links={itemLinks} />}
         {!collectionMirrorHref && rootHref && (
           <RootHref value={value} href={rootHref} />
         )}

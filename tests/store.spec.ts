@@ -49,6 +49,8 @@ function resetStore() {
     collections: null,
     filteredCollections: null,
     hoveredCollection: null,
+    selectedCollectionId: null,
+    selectedCollectionHref: null,
     visualizeCollections: true,
     catalogs: null,
     staticItems: null,
@@ -99,6 +101,8 @@ describe("href.ts - setHref", () => {
       collections: [makeCollection("col1")],
       filteredCollections: [makeCollection("col1")],
       hoveredCollection: makeCollection("col1"),
+      selectedCollectionId: "col1",
+      selectedCollectionHref: "https://example.com/collections/col1",
       hoveredItem: makeItem("item1"),
       pickedItem: makeItem("item1"),
       staticItems: [makeItem("item1")],
@@ -119,6 +123,8 @@ describe("href.ts - setHref", () => {
     expect(state.collections).toBeNull();
     expect(state.filteredCollections).toBeNull();
     expect(state.hoveredCollection).toBeNull();
+    expect(state.selectedCollectionId).toBeNull();
+    expect(state.selectedCollectionHref).toBeNull();
     expect(state.hoveredItem).toBeNull();
     expect(state.pickedItem).toBeNull();
     expect(state.staticItems).toBeNull();
@@ -232,6 +238,73 @@ describe("collections.ts - setFilteredCollections", () => {
   });
 });
 
+describe("collections.ts - selected collection", () => {
+  test("selectCollection stores id and self href", () => {
+    const collection = {
+      ...makeCollection("col1"),
+      links: [{ rel: "self", href: "https://example.com/collections/col1" }],
+    };
+    useStore.setState({
+      pickedItem: makeItem("old-item"),
+      staticItems: [makeItem("item1")],
+      searchedItems: [[makeItem("item2")]],
+      stacGeoparquetTable: {} as never,
+      stacGeoparquetHref: "https://example.com/old.parquet",
+      stacGeoparquetItemId: "old-item",
+    });
+
+    useStore.getState().selectCollection(collection);
+
+    expect(useStore.getState().selectedCollectionId).toBe("col1");
+    expect(useStore.getState().selectedCollectionHref).toBe(
+      "https://example.com/collections/col1"
+    );
+    expect(useStore.getState().pickedItem).toBeNull();
+    expect(useStore.getState().staticItems).toBeNull();
+    expect(useStore.getState().searchedItems).toBeNull();
+    expect(useStore.getState().stacGeoparquetTable).toBeNull();
+    expect(useStore.getState().stacGeoparquetHref).toBeNull();
+    expect(useStore.getState().stacGeoparquetItemId).toBeNull();
+  });
+
+  test("selectCollectionFromId uses the collection list", () => {
+    const collection = {
+      ...makeCollection("col1"),
+      links: [{ rel: "self", href: "https://example.com/collections/col1" }],
+    };
+    useStore.setState({ collections: [collection] });
+
+    useStore.getState().selectCollectionFromId("col1");
+
+    expect(useStore.getState().selectedCollectionId).toBe("col1");
+    expect(useStore.getState().selectedCollectionHref).toBe(
+      "https://example.com/collections/col1"
+    );
+  });
+
+  test("clearSelectedCollection clears selected collection state", () => {
+    useStore.setState({
+      selectedCollectionId: "col1",
+      selectedCollectionHref: "https://example.com/collections/col1",
+      staticItems: [makeItem("item1")],
+      searchedItems: [[makeItem("item2")]],
+      stacGeoparquetTable: {} as never,
+      stacGeoparquetHref: "https://example.com/old.parquet",
+      stacGeoparquetItemId: "old-item",
+    });
+
+    useStore.getState().clearSelectedCollection();
+
+    expect(useStore.getState().selectedCollectionId).toBeNull();
+    expect(useStore.getState().selectedCollectionHref).toBeNull();
+    expect(useStore.getState().staticItems).toBeNull();
+    expect(useStore.getState().searchedItems).toBeNull();
+    expect(useStore.getState().stacGeoparquetTable).toBeNull();
+    expect(useStore.getState().stacGeoparquetHref).toBeNull();
+    expect(useStore.getState().stacGeoparquetItemId).toBeNull();
+  });
+});
+
 describe("catalogs.ts - addCatalog", () => {
   test("adds to empty catalogs", () => {
     useStore.setState({ catalogs: [] });
@@ -295,6 +368,22 @@ describe("items.ts - addItem", () => {
 });
 
 describe("items.ts - clearPickedItem", () => {
+  test("setPickedItem clears stacGeoparquetItemId", () => {
+    const item = makeItem("test");
+    useStore.setState({
+      selectedCollectionId: "col1",
+      selectedCollectionHref: "https://example.com/collections/col1",
+      stacGeoparquetItemId: "old-item",
+    });
+
+    useStore.getState().setPickedItem(item);
+
+    expect(useStore.getState().pickedItem).toBe(item);
+    expect(useStore.getState().selectedCollectionId).toBeNull();
+    expect(useStore.getState().selectedCollectionHref).toBeNull();
+    expect(useStore.getState().stacGeoparquetItemId).toBeNull();
+  });
+
   test("clears pickedItem and stacGeoparquetItemId", () => {
     useStore.setState({
       pickedItem: makeItem("test"),
@@ -305,6 +394,18 @@ describe("items.ts - clearPickedItem", () => {
 
     expect(useStore.getState().pickedItem).toBeNull();
     expect(useStore.getState().stacGeoparquetItemId).toBeNull();
+  });
+});
+
+describe("stac-geoparquet.ts - setStacGeoparquetItemId", () => {
+  test("keeps current pickedItem while loading another GeoParquet item", () => {
+    const item = makeItem("current");
+    useStore.setState({ pickedItem: item });
+
+    useStore.getState().setStacGeoparquetItemId("next");
+
+    expect(useStore.getState().stacGeoparquetItemId).toBe("next");
+    expect(useStore.getState().pickedItem).toBe(item);
   });
 });
 

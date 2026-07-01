@@ -69,14 +69,23 @@ export const useStore = create<State>()(
       ...createWebMapLinksSlice(...a),
       fillColor: [207, 63, 2, 50] as [number, number, number, number],
       lineColor: [207, 63, 2, 100] as [number, number, number, number],
-      collectionFillColor: [59, 130, 246, 50] as [number, number, number, number],
-      collectionLineColor: [59, 130, 246, 100] as [number, number, number, number],
+      collectionFillColor: [59, 130, 246, 50] as [
+        number,
+        number,
+        number,
+        number,
+      ],
+      collectionLineColor: [59, 130, 246, 100] as [
+        number,
+        number,
+        number,
+        number,
+      ],
       lineWidth: 3,
     }),
     {
       name: "stac-map-settings",
       partialize: (state) => ({
-        restrictToThreeBandCogs: state.restrictToThreeBandCogs,
         hivePartitioning: state.hivePartitioning,
       }),
     }

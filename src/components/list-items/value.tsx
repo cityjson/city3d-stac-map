@@ -8,11 +8,13 @@ export default function ValueListItem({
   isHovered = false,
   onMouseEnter,
   onMouseLeave,
+  onClick,
 }: {
   value: StacValue;
   isHovered?: boolean;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
+  onClick?: () => void;
 }) {
   const setHref = useStore((store) => store.setHref);
   const selfHref = getSelfHref(value);
@@ -27,7 +29,8 @@ export default function ValueListItem({
         href="#"
         onClick={(e) => {
           e.preventDefault();
-          if (selfHref) setHref(selfHref);
+          if (onClick) onClick();
+          else if (selfHref) setHref(selfHref);
         }}
       >
         {getStacValueTitle(value)}

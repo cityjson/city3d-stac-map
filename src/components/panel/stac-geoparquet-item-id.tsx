@@ -35,7 +35,7 @@ function Body({ id }: { id: string }) {
     <>
       <SkeletonText />
       {parquetHref && connection && (
-        <Loader
+        <StacGeoparquetItemIdLoader
           id={id}
           href={parquetHref}
           collectionHref={href}
@@ -46,7 +46,7 @@ function Body({ id }: { id: string }) {
   );
 }
 
-function Loader({
+export function StacGeoparquetItemIdLoader({
   id,
   href,
   collectionHref,
@@ -80,7 +80,7 @@ function Loader({
   }, [result.data, href, collectionHref]);
 
   useEffect(() => {
-    setPickedItem(resolvedItem);
+    if (resolvedItem) setPickedItem(resolvedItem);
   }, [resolvedItem, setPickedItem]);
 
   if (result.error)
@@ -90,6 +90,8 @@ function Loader({
         error={result.error}
       />
     );
+
+  return null;
 }
 
 function fixRelLink(item: StacItem, rel: string, href: string) {

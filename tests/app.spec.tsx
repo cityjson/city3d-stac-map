@@ -42,6 +42,20 @@ describe("app", () => {
       .toBeVisible();
   });
 
+  test("does not show examples in the header", async () => {
+    const app = await renderApp();
+    await expect.element(app.getByText("Examples")).not.toBeInTheDocument();
+  });
+
+  test("settings no longer include the 3-band COG option", async () => {
+    const app = await renderApp();
+    await app.getByRole("button", { name: "Settings" }).click();
+    await expect
+      .element(app.getByText("Restrict to 3-band COGs"))
+      .not.toBeInTheDocument();
+    await expect.element(app.getByText("Hive partitioning")).toBeVisible();
+  });
+
   test(
     "has a TileJSON button for a MAAP collection",
     {

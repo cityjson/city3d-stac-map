@@ -1,3 +1,5 @@
+import type { AttributeDefinition, City3DProperties } from "@/types/stac";
+import { flattenSummaryValues } from "@/utils/city3d-filter";
 import {
   Badge,
   Box,
@@ -6,11 +8,11 @@ import {
   Separator,
   Span,
   Stack,
+  Table,
   Text,
 } from "@chakra-ui/react";
-import type { AttributeDefinition, City3DProperties } from "@/types/stac";
-import { Section } from "../section";
 import {
+  LuBox,
   LuBuilding,
   LuBuilding2,
   LuFileJson,
@@ -20,26 +22,54 @@ import {
   LuPackage,
   LuPalette,
   LuScanLine,
-  LuBox,
   LuTag,
   LuText,
   LuTreeDeciduous,
   LuWaves,
 } from "react-icons/lu";
+import { Section } from "../section";
 
 interface City3DProps {
   properties?: Record<string, unknown>;
   summaries?: Record<string, unknown>;
+  assets?: Record<string, Record<string, unknown>>;
 }
 
 // Color scheme for city object type categories
-const CATEGORY_COLORS: Record<string, { bg: string; color: string; border: string }> = {
-  Buildings: { bg: "rgba(245, 158, 11, 0.15)", color: "#F59E0B", border: "rgba(245, 158, 11, 0.3)" },
-  Infrastructure: { bg: "rgba(167, 139, 250, 0.15)", color: "#A78BFA", border: "rgba(167, 139, 250, 0.3)" },
-  Water: { bg: "rgba(56, 189, 248, 0.15)", color: "#38BDF8", border: "rgba(56, 189, 248, 0.3)" },
-  Vegetation: { bg: "rgba(52, 211, 153, 0.15)", color: "#34D399", border: "rgba(52, 211, 153, 0.3)" },
-  Terrain: { bg: "rgba(217, 119, 6, 0.15)", color: "#D97706", border: "rgba(217, 119, 6, 0.3)" },
-  Other: { bg: "rgba(148, 163, 184, 0.15)", color: "#94A3B8", border: "rgba(148, 163, 184, 0.3)" },
+const CATEGORY_COLORS: Record<
+  string,
+  { bg: string; color: string; border: string }
+> = {
+  Buildings: {
+    bg: "rgba(245, 158, 11, 0.15)",
+    color: "#F59E0B",
+    border: "rgba(245, 158, 11, 0.3)",
+  },
+  Infrastructure: {
+    bg: "rgba(167, 139, 250, 0.15)",
+    color: "#A78BFA",
+    border: "rgba(167, 139, 250, 0.3)",
+  },
+  Water: {
+    bg: "rgba(56, 189, 248, 0.15)",
+    color: "#38BDF8",
+    border: "rgba(56, 189, 248, 0.3)",
+  },
+  Vegetation: {
+    bg: "rgba(52, 211, 153, 0.15)",
+    color: "#34D399",
+    border: "rgba(52, 211, 153, 0.3)",
+  },
+  Terrain: {
+    bg: "rgba(217, 119, 6, 0.15)",
+    color: "#D97706",
+    border: "rgba(217, 119, 6, 0.3)",
+  },
+  Other: {
+    bg: "rgba(148, 163, 184, 0.15)",
+    color: "#94A3B8",
+    border: "rgba(148, 163, 184, 0.3)",
+  },
 };
 
 // Map each city object type to its category
@@ -93,7 +123,10 @@ const CITY_OBJECT_ICONS: Record<string, React.ReactElement> = {
 };
 
 // Media type to icon and label mapping
-const MEDIA_TYPE_INFO: Record<string, { icon: React.ReactElement; label: string }> = {
+const MEDIA_TYPE_INFO: Record<
+  string,
+  { icon: React.ReactElement; label: string }
+> = {
   "application/json": { icon: <LuFileJson />, label: "CityJSON" },
   "application/json+cityjson": { icon: <LuFileJson />, label: "CityJSON" },
   "application/cityjson": { icon: <LuFileJson />, label: "CityJSON" },
@@ -105,19 +138,24 @@ const MEDIA_TYPE_INFO: Record<string, { icon: React.ReactElement; label: string 
   "application/vnd.citygml+xml": { icon: <LuFileJson />, label: "CityGML" },
 };
 
-export default function City3D({ properties, summaries }: City3DProps) {
+export default function City3D({ properties, summaries, assets }: City3DProps) {
   const source = summaries || properties || {};
   const isCollection = !!summaries;
 
-  const city3dProps = isCollection
+  const baseCity3dProps = isCollection
     ? extractCity3DSummaries(source)
     : extractCity3DProperties(source);
+  const city3dProps = mergeCity3DProperties(
+    baseCity3dProps,
+    extractCity3DAssetProperties(assets)
+  );
 
   const hasCity3DData =
     city3dProps.version ||
     city3dProps.cityObjects ||
     city3dProps.lods?.length ||
     city3dProps.coTypes?.length ||
+    city3dProps.attributes?.length ||
     city3dProps.projCode ||
     city3dProps.mediaType ||
     city3dProps.semanticSurfaces !== undefined ||
@@ -164,7 +202,8 @@ export default function City3D({ properties, summaries }: City3DProps) {
               {MEDIA_TYPE_INFO[city3dProps.mediaType]?.icon || <LuFileJson />}
               <Span color="fg.muted">Format:</Span>
               <Span fontWeight="medium">
-                {MEDIA_TYPE_INFO[city3dProps.mediaType]?.label || city3dProps.mediaType}
+                {MEDIA_TYPE_INFO[city3dProps.mediaType]?.label ||
+                  city3dProps.mediaType}
               </Span>
             </HStack>
           )}
@@ -188,7 +227,14 @@ export default function City3D({ properties, summaries }: City3DProps) {
         {/* Levels of Detail */}
         {city3dProps.lods && city3dProps.lods.length > 0 && (
           <Box>
-            <Text color="fg.muted" fontSize="xs" fontWeight="medium" mb={2} textTransform="uppercase" letterSpacing="wider">
+            <Text
+              color="fg.muted"
+              fontSize="xs"
+              fontWeight="medium"
+              mb={2}
+              textTransform="uppercase"
+              letterSpacing="wider"
+            >
               Levels of Detail
             </Text>
             <HStack flexWrap="wrap" gap={2}>
@@ -219,10 +265,33 @@ export default function City3D({ properties, summaries }: City3DProps) {
         {/* City Object Types */}
         {city3dProps.coTypes && city3dProps.coTypes.length > 0 && (
           <Box>
-            <Text color="fg.muted" fontSize="xs" fontWeight="medium" mb={2} textTransform="uppercase" letterSpacing="wider">
+            <Text
+              color="fg.muted"
+              fontSize="xs"
+              fontWeight="medium"
+              mb={2}
+              textTransform="uppercase"
+              letterSpacing="wider"
+            >
               City Object Types
             </Text>
             <CityObjectTypesList types={city3dProps.coTypes} />
+          </Box>
+        )}
+
+        {city3dProps.attributes && city3dProps.attributes.length > 0 && (
+          <Box>
+            <Text
+              color="fg.muted"
+              fontSize="xs"
+              fontWeight="medium"
+              mb={2}
+              textTransform="uppercase"
+              letterSpacing="wider"
+            >
+              Attributes
+            </Text>
+            <AttributeTable attributes={city3dProps.attributes} />
           </Box>
         )}
 
@@ -233,7 +302,14 @@ export default function City3D({ properties, summaries }: City3DProps) {
           <>
             <Separator borderColor="border" />
             <Box>
-              <Text color="fg.muted" fontSize="xs" fontWeight="medium" mb={2} textTransform="uppercase" letterSpacing="wider">
+              <Text
+                color="fg.muted"
+                fontSize="xs"
+                fontWeight="medium"
+                mb={2}
+                textTransform="uppercase"
+                letterSpacing="wider"
+              >
                 Appearance
               </Text>
               <HStack flexWrap="wrap" gap={2}>
@@ -318,20 +394,30 @@ function CityObjectsStats({
 
 function CityObjectTypesList({ types }: { types: string[] }) {
   const building = types.filter((t) =>
-    ["Building", "BuildingPart", "BuildingInstallation", "BuildingStorey", "BuildingRoom"].includes(t)
+    [
+      "Building",
+      "BuildingPart",
+      "BuildingInstallation",
+      "BuildingStorey",
+      "BuildingRoom",
+    ].includes(t)
   );
   const infrastructure = types.filter((t) =>
-    ["Bridge", "BridgePart", "Road", "Railway", "Tunnel", "TunnelPart", "TransportSquare"].includes(t)
+    [
+      "Bridge",
+      "BridgePart",
+      "Road",
+      "Railway",
+      "Tunnel",
+      "TunnelPart",
+      "TransportSquare",
+    ].includes(t)
   );
-  const water = types.filter((t) =>
-    ["WaterBody", "WaterSurface"].includes(t)
-  );
+  const water = types.filter((t) => ["WaterBody", "WaterSurface"].includes(t));
   const vegetation = types.filter((t) =>
     ["PlantCover", "SolitaryVegetationObject"].includes(t)
   );
-  const terrain = types.filter((t) =>
-    ["TINRelief", "LandUse"].includes(t)
-  );
+  const terrain = types.filter((t) => ["TINRelief", "LandUse"].includes(t));
   const other = types.filter(
     (t) =>
       !building.includes(t) &&
@@ -349,9 +435,7 @@ function CityObjectTypesList({ types }: { types: string[] }) {
       {infrastructure.length > 0 && (
         <ObjectTypeGroup label="Infrastructure" types={infrastructure} />
       )}
-      {water.length > 0 && (
-        <ObjectTypeGroup label="Water" types={water} />
-      )}
+      {water.length > 0 && <ObjectTypeGroup label="Water" types={water} />}
       {vegetation.length > 0 && (
         <ObjectTypeGroup label="Vegetation" types={vegetation} />
       )}
@@ -361,6 +445,69 @@ function CityObjectTypesList({ types }: { types: string[] }) {
       {other.length > 0 && <ObjectTypeGroup label="Other" types={other} />}
     </Stack>
   );
+}
+
+function AttributeTable({ attributes }: { attributes: AttributeDefinition[] }) {
+  return (
+    <Box maxW="100%" overflowX="auto">
+      <Table.Root size="sm" variant="outline" minW="520px">
+        <Table.Header>
+          <Table.Row>
+            <Table.ColumnHeader>Name</Table.ColumnHeader>
+            <Table.ColumnHeader>Type</Table.ColumnHeader>
+            <Table.ColumnHeader>Description</Table.ColumnHeader>
+          </Table.Row>
+        </Table.Header>
+        <Table.Body>
+          {attributes.map((attribute) => (
+            <Table.Row key={attribute.name}>
+              <Table.Cell fontFamily="mono" fontSize="xs">
+                {attribute.name}
+                {attribute.required && (
+                  <Badge ml={2} size="sm" variant="surface">
+                    Required
+                  </Badge>
+                )}
+              </Table.Cell>
+              <Table.Cell>
+                <TypeBadge type={attribute.type} />
+              </Table.Cell>
+              <Table.Cell color="fg.muted" fontSize="xs">
+                {attribute.description || "-"}
+              </Table.Cell>
+            </Table.Row>
+          ))}
+        </Table.Body>
+      </Table.Root>
+    </Box>
+  );
+}
+
+function TypeBadge({ type }: { type: AttributeDefinition["type"] }) {
+  const icon = getAttributeTypeIcon(type);
+  return (
+    <Badge size="sm" variant="subtle" fontFamily="mono">
+      {icon} {type}
+    </Badge>
+  );
+}
+
+function getAttributeTypeIcon(type: AttributeDefinition["type"]) {
+  switch (type) {
+    case "Number":
+      return "#";
+    case "Boolean":
+      return "?";
+    case "Date":
+      return "d";
+    case "Array":
+      return "[]";
+    case "Object":
+      return "{}";
+    case "String":
+    default:
+      return "T";
+  }
 }
 
 function ObjectTypeGroup({ label, types }: { label: string; types: string[] }) {
@@ -400,7 +547,9 @@ function ObjectTypeGroup({ label, types }: { label: string; types: string[] }) {
                 },
               }}
             >
-              {CITY_OBJECT_ICONS[type] || <LuPackage style={{ width: 12, height: 12 }} />}
+              {CITY_OBJECT_ICONS[type] || (
+                <LuPackage style={{ width: 12, height: 12 }} />
+              )}
               <Span>{formatObjectType(type)}</Span>
             </Badge>
           );
@@ -470,9 +619,7 @@ function extractCity3DProperties(
       | undefined,
     lods: properties["city3d:lods"] as number[] | undefined,
     coTypes: properties["city3d:co_types"] as string[] | undefined,
-    attributes: properties["city3d:attributes"] as
-      | AttributeDefinition[]
-      | undefined,
+    attributes: normalizeAttributes(properties["city3d:attributes"]),
     semanticSurfaces: properties["city3d:semantic_surfaces"] as
       | boolean
       | undefined,
@@ -496,11 +643,8 @@ function extractCity3DSummaries(
   summaries: Record<string, unknown>
 ): City3DProperties {
   const getArrayValue = <T,>(key: string): T[] | undefined => {
-    const value = summaries[key];
-    if (Array.isArray(value)) {
-      return value.flat() as T[];
-    }
-    return undefined;
+    const values = flattenSummaryValues(summaries[key]);
+    return values.length > 0 ? (values as T[]) : undefined;
   };
 
   const getRangeValue = (
@@ -510,8 +654,8 @@ function extractCity3DSummaries(
     if (value && typeof value === "object" && !Array.isArray(value)) {
       const range = value as { min?: number; max?: number; total?: number };
       return {
-        min: range.min,
-        max: range.max,
+        min: range.min ?? (range as { minimum?: number }).minimum,
+        max: range.max ?? (range as { maximum?: number }).maximum,
         total: range.total,
       };
     }
@@ -526,19 +670,18 @@ function extractCity3DSummaries(
 
   const getBooleanArray = (key: string): boolean | undefined => {
     const value = summaries[key];
-    if (Array.isArray(value) && value.length > 0) {
-      return value.includes(true);
-    }
-    return undefined;
+    if (typeof value === "boolean") return value;
+    const values = flattenSummaryValues(value);
+    return values.length > 0 ? values.includes(true) : undefined;
   };
 
   const getSingleValue = <T,>(key: string): T | undefined => {
-    const value = summaries[key];
-    if (Array.isArray(value) && value.length > 0) {
-      const unique = [...new Set(value)];
+    const values = flattenSummaryValues(summaries[key]);
+    if (values.length > 0) {
+      const unique = [...new Set(values)];
       return unique.length === 1 ? (unique[0] as T) : (unique as T);
     }
-    return value as T | undefined;
+    return undefined;
   };
 
   return {
@@ -546,9 +689,7 @@ function extractCity3DSummaries(
     cityObjects: getRangeValue("city3d:city_objects"),
     lods: getArrayValue<number>("city3d:lods"),
     coTypes: getArrayValue<string>("city3d:co_types"),
-    attributes: summaries["city3d:attributes"] as
-      | AttributeDefinition[]
-      | undefined,
+    attributes: normalizeAttributes(summaries["city3d:attributes"]),
     semanticSurfaces: getBooleanArray("city3d:semantic_surfaces"),
     textures: getBooleanArray("city3d:textures"),
     materials: getBooleanArray("city3d:materials"),
@@ -557,4 +698,106 @@ function extractCity3DSummaries(
     projjson: summaries["proj:projjson"] as object | undefined,
     mediaType: getSingleValue<string>("city3d:media_type"),
   };
+}
+
+function extractCity3DAssetProperties(
+  assets: Record<string, Record<string, unknown>> | undefined
+): City3DProperties {
+  if (!assets) return {};
+  const attributes = Object.values(assets).flatMap(
+    (asset) => normalizeAttributes(asset["city3d:attributes"]) || []
+  );
+  return {
+    attributes: uniqueAttributes(attributes),
+  };
+}
+
+function mergeCity3DProperties(
+  base: City3DProperties,
+  additional: City3DProperties
+): City3DProperties {
+  return {
+    ...base,
+    attributes: uniqueAttributes([
+      ...(base.attributes || []),
+      ...(additional.attributes || []),
+    ]),
+  };
+}
+
+function normalizeAttributes(
+  value: unknown
+): AttributeDefinition[] | undefined {
+  const attributes = normalizeAttributeList(value);
+  return attributes.length > 0 ? uniqueAttributes(attributes) : undefined;
+}
+
+function normalizeAttributeList(value: unknown): AttributeDefinition[] {
+  if (value == null) return [];
+  if (Array.isArray(value)) return value.flatMap(normalizeAttributeList);
+  if (!isRecord(value)) return [];
+
+  if (isAttributeLike(value)) return [toAttributeDefinition(value)];
+
+  const names = toArray(value.name);
+  const types = toArray(value.type);
+  if (names.length > 0 && types.length > 0) {
+    return names.map((name, index) =>
+      toAttributeDefinition({
+        name,
+        type: types[index] || types[0],
+        description: toArray(value.description)[index],
+        required: toArray(value.required)[index],
+      })
+    );
+  }
+
+  if (Array.isArray(value.attributes)) {
+    return normalizeAttributeList(value.attributes);
+  }
+
+  return Object.entries(value).flatMap(([name, definition]) => {
+    if (isRecord(definition)) {
+      return toAttributeDefinition({ name, ...definition });
+    }
+    if (typeof definition === "string") {
+      return toAttributeDefinition({ name, type: definition });
+    }
+    return [];
+  });
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return !!value && typeof value === "object" && !Array.isArray(value);
+}
+
+function isAttributeLike(value: Record<string, unknown>) {
+  return typeof value.name === "string" && typeof value.type === "string";
+}
+
+function toAttributeDefinition(
+  value: Record<string, unknown>
+): AttributeDefinition {
+  return {
+    name: String(value.name),
+    type: String(value.type || "String") as AttributeDefinition["type"],
+    description:
+      typeof value.description === "string" ? value.description : undefined,
+    required: typeof value.required === "boolean" ? value.required : undefined,
+  };
+}
+
+function toArray(value: unknown): unknown[] {
+  if (value == null) return [];
+  return Array.isArray(value) ? value : [value];
+}
+
+function uniqueAttributes(attributes: AttributeDefinition[]) {
+  const seen = new Set<string>();
+  return attributes.filter((attribute) => {
+    const key = `${attribute.name}:${attribute.type}:${attribute.description || ""}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }

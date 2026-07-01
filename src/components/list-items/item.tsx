@@ -5,6 +5,7 @@ import ValueListItem from "./value";
 export default function ItemListItem({ item }: { item: StacItem }) {
   const hoveredItem = useStore((store) => store.hoveredItem);
   const setHoveredItem = useStore((store) => store.setHoveredItem);
+  const setPickedItem = useStore((store) => store.setPickedItem);
 
   return (
     <ValueListItem
@@ -14,6 +15,7 @@ export default function ItemListItem({ item }: { item: StacItem }) {
       onMouseLeave={() => {
         if (hoveredItem?.id === item.id) setHoveredItem(null);
       }}
+      onClick={() => setPickedItem(item)}
     />
   );
 }

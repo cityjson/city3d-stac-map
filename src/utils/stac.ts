@@ -234,7 +234,7 @@ export function isCollectionInDatetimes(
 
 export function getGeotiffHref(
   asset: AssetWithAlternates,
-  restrictToThreeBandCogs: boolean = true
+  restrictToThreeBandCogs: boolean = false
 ): string | null {
   if (!isGeotiff(asset, restrictToThreeBandCogs)) {
     return null;
@@ -255,7 +255,7 @@ export function getGeotiffHref(
 
 export function isGeotiff(
   asset: AssetWithAlternates,
-  restrictToThreeBandCogs: boolean = true
+  restrictToThreeBandCogs: boolean = false
 ) {
   return (
     hasHttpHref(asset) &&
@@ -267,7 +267,7 @@ export function isGeotiff(
 
 function hasValidBandCount(
   asset: AssetWithAlternates,
-  restrictToThreeBandCogs: boolean = true
+  restrictToThreeBandCogs: boolean = false
 ): boolean {
   const bandCount = getBandCount(asset);
   if (bandCount === null) return !restrictToThreeBandCogs;
@@ -294,7 +294,7 @@ export function getBandCount(asset: AssetWithAlternates): number | null {
 
 export function sortAssets(
   assets: StacAssets,
-  restrictToThreeBandCogs: boolean = true
+  restrictToThreeBandCogs: boolean = false
 ) {
   return Object.entries(assets).sort(
     ([, a], [, b]) =>
@@ -305,7 +305,7 @@ export function sortAssets(
 
 export function getBestAssetFromSortedList(
   sortedAssets: [string, AssetWithAlternates][],
-  restrictToThreeBandCogs: boolean = true
+  restrictToThreeBandCogs: boolean = false
 ) {
   const first = sortedAssets[0];
   if (
@@ -319,7 +319,7 @@ export function getBestAssetFromSortedList(
 
 export function getBestAsset(
   item: StacItem,
-  restrictToThreeBandCogs: boolean = true
+  restrictToThreeBandCogs: boolean = false
 ) {
   const sortedAssets = sortAssets(item.assets, restrictToThreeBandCogs);
   return getBestAssetFromSortedList(sortedAssets, restrictToThreeBandCogs);
@@ -327,7 +327,7 @@ export function getBestAsset(
 
 export function getAssetScore(
   asset: AssetWithAlternates,
-  restrictToThreeBandCogs: boolean = true
+  restrictToThreeBandCogs: boolean = false
 ): number {
   const geotiff = isGeotiff(asset, restrictToThreeBandCogs);
   if (!geotiff) return 0;

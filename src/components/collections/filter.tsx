@@ -9,7 +9,7 @@ import {
   isCollectionMatchingCoTypes,
   isCollectionMatchingLods,
 } from "@/utils/city3d-filter";
-import { isCollectionInBbox, isCollectionInDatetimes } from "@/utils/stac";
+import { isCollectionInDatetimes, isGlobalCollection } from "@/utils/stac";
 import {
   Box,
   Button,
@@ -58,7 +58,10 @@ function isCity3DFilterActive(f: City3DFilterState): boolean {
   );
 }
 
-function city3dFiltersEqual(a: City3DFilterState, b: City3DFilterState): boolean {
+function city3dFiltersEqual(
+  a: City3DFilterState,
+  b: City3DFilterState
+): boolean {
   return (
     setsEqual(a.selectedLods, b.selectedLods) &&
     a.lodMode === b.lodMode &&
@@ -78,11 +81,11 @@ function setsEqual<T>(a: Set<T>, b: Set<T>): boolean {
 
 export default function Filter({
   collections,
+  onClose,
 }: {
   collections: StacCollection[];
+  onClose: () => void;
 }) {
-  const bbox = useStore((store) => store.bbox);
-  const zoom = useStore((store) => store.zoom);
   const datetimeFilter = useStore((store) => store.datetimeFilter);
   const datetimeBounds = useStore((store) => store.datetimeBounds);
   const setFilteredCollections = useStore(
@@ -94,8 +97,12 @@ export default function Filter({
   const [searchValue, setSearchValue] = useState("");
 
   // Pending = what the user is editing; Applied = what the filter uses
-  const [pending, setPending] = useState<City3DFilterState>(DEFAULT_CITY3D_FILTER);
-  const [applied, setApplied] = useState<City3DFilterState>(DEFAULT_CITY3D_FILTER);
+  const [pending, setPending] = useState<City3DFilterState>(
+    DEFAULT_CITY3D_FILTER
+  );
+  const [applied, setApplied] = useState<City3DFilterState>(
+    DEFAULT_CITY3D_FILTER
+  );
 
   const hasPendingChanges = !city3dFiltersEqual(pending, applied);
   const hasAppliedFilters = isCity3DFilterActive(applied);
@@ -114,13 +121,7 @@ export default function Filter({
       collections?.filter(
         (collection) =>
           matchesFilter(collection, searchValue) &&
-          (!bbox ||
-            isCollectionInBbox(
-              collection,
-              bbox,
-              includeGlobalCollections,
-              zoom
-            )) &&
+          (includeGlobalCollections || !isGlobalCollection(collection)) &&
           (!datetimeFilter ||
             isCollectionInDatetimes(
               collection,
@@ -158,8 +159,6 @@ export default function Filter({
     collections,
     setFilteredCollections,
     searchValue,
-    bbox,
-    zoom,
     datetimeFilter,
     includeGlobalCollections,
     applied,
@@ -167,6 +166,10 @@ export default function Filter({
 
   return (
     <Stack gap={4}>
+      <HStack justify="space-between">
+        <Text fontWeight="semibold">Filters</Text>
+        <CloseButton size="sm" onClick={onClose} />
+      </HStack>
       <InputGroup
         startElement={<LuFilter />}
         endElement={

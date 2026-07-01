@@ -25,8 +25,10 @@ export default function HrefInput() {
         setHref(input || null);
       }}
       flex="1"
+      minW={0}
     >
       <InputGroup
+        minW={0}
         endElement={
           <FileUpload.Root
             onFileAccept={(details) =>

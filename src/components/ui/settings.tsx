@@ -18,12 +18,6 @@ export const SettingsButton = React.forwardRef<
   HTMLButtonElement,
   SettingsButtonProps
 >(function SettingsButton(props, ref) {
-  const restrictToThreeBandCogs = useStore(
-    (store) => store.restrictToThreeBandCogs
-  );
-  const setRestrictToThreeBandCogs = useStore(
-    (store) => store.setRestrictToThreeBandCogs
-  );
   const hivePartitioning = useStore((store) => store.hivePartitioning);
   const setHivePartitioning = useStore((store) => store.setHivePartitioning);
 
@@ -43,25 +37,6 @@ export const SettingsButton = React.forwardRef<
             </Dialog.Header>
             <Dialog.Body>
               <Field.Root>
-                <Switch.Root
-                  checked={restrictToThreeBandCogs}
-                  onCheckedChange={(e) => setRestrictToThreeBandCogs(e.checked)}
-                >
-                  <Switch.HiddenInput />
-                  <Switch.Control>
-                    <Switch.Thumb />
-                  </Switch.Control>
-                  <Switch.Label>Restrict to 3-band COGs</Switch.Label>
-                </Switch.Root>
-                <Field.HelperText>
-                  <Text fontSize="sm" color="fg.muted">
-                    When enabled, only COGs with three bands can be visualized.
-                    Disable to allow COGs with any number of bands or no bands
-                    in their STAC metadata.
-                  </Text>
-                </Field.HelperText>
-              </Field.Root>
-              <Field.Root mt={4}>
                 <Switch.Root
                   checked={hivePartitioning}
                   onCheckedChange={(e) => setHivePartitioning(e.checked)}

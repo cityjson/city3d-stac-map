@@ -24,6 +24,8 @@ export const createHrefSlice: StateCreator<State, [], [], HrefState> = (
       collections: null,
       filteredCollections: null,
       hoveredCollection: null,
+      selectedCollectionId: null,
+      selectedCollectionHref: null,
       hoveredItem: null,
       pickedItem: null,
       staticItems: null,

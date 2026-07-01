@@ -13,7 +13,11 @@ export interface CollectionsState {
   setFilteredCollections: (collections: StacCollection[] | null) => void;
   collectionFreeTextSearch: string | null;
   setCollectionFreeTextSearch: (q: string | null) => void;
-  setHrefFromCollectionId: (id: string) => void;
+  selectedCollectionId: string | null;
+  selectedCollectionHref: string | null;
+  selectCollection: (collection: StacCollection) => void;
+  selectCollectionFromId: (id: string) => void;
+  clearSelectedCollection: () => void;
   setHoveredCollectionFromId: (id: string) => void;
   visualizeCollections: boolean;
   setVisualizeCollections: (visualize: boolean) => void;
@@ -47,13 +51,36 @@ export const createCollectionsSlice: StateCreator<
   },
   collectionFreeTextSearch: null,
   setCollectionFreeTextSearch: (q) => set({ collectionFreeTextSearch: q }),
-  setHrefFromCollectionId: (id: string) => {
-    const collection = get().collections?.find((c) => c.id === id);
-    if (collection) {
-      const href = getSelfHref(collection);
-      if (href) get().setHref(href);
-    }
+  selectedCollectionId: null,
+  selectedCollectionHref: null,
+  selectCollection: (collection) => {
+    const href = getSelfHref(collection);
+    if (href)
+      set({
+        selectedCollectionId: collection.id,
+        selectedCollectionHref: href,
+        pickedItem: null,
+        staticItems: null,
+        searchedItems: null,
+        stacGeoparquetTable: null,
+        stacGeoparquetHref: null,
+        stacGeoparquetItemId: null,
+      });
   },
+  selectCollectionFromId: (id: string) => {
+    const collection = get().collections?.find((c) => c.id === id);
+    if (collection) get().selectCollection(collection);
+  },
+  clearSelectedCollection: () =>
+    set({
+      selectedCollectionId: null,
+      selectedCollectionHref: null,
+      staticItems: null,
+      searchedItems: null,
+      stacGeoparquetTable: null,
+      stacGeoparquetHref: null,
+      stacGeoparquetItemId: null,
+    }),
   setHoveredCollectionFromId: (id: string) => {
     const collection = get().collections?.find((c) => c.id === id);
     if (collection) {

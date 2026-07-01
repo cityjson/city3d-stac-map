@@ -26,8 +26,8 @@ import {
   useControl,
 } from "react-map-gl/maplibre";
 import { useStore } from "../store";
-import { useColorModeValue } from "./ui/color-mode";
 import ItemsNotice from "./items-notice";
+import { useColorModeValue } from "./ui/color-mode";
 
 type Color = [number, number, number, number];
 
@@ -59,8 +59,9 @@ export default function Map() {
     (store) => store.setStacGeoparquetItemId
   );
   const setHoveredCollection = useStore((store) => store.setHoveredCollection);
-  const setHrefFromCollectionId = useStore(
-    (store) => store.setHrefFromCollectionId
+  const selectedCollectionId = useStore((store) => store.selectedCollectionId);
+  const selectCollectionFromId = useStore(
+    (store) => store.selectCollectionFromId
   );
   const setHoveredCollectionFromId = useStore(
     (store) => store.setHoveredCollectionFromId
@@ -124,6 +125,32 @@ export default function Map() {
     }),
   ];
 
+  if (visualizeCollections) {
+    layers.push(
+      new GeoJsonLayer({
+        id: "collections",
+        data: nonGlobalCollectionBounds,
+        filled: true,
+        getFillColor: (e) =>
+          e.id === hoveredCollection?.id || e.id === selectedCollectionId
+            ? collectionFillColor
+            : transparent,
+        getLineColor: collectionLineColor,
+        getLineWidth: lineWidth,
+        lineWidthUnits: "pixels",
+        pickable: true,
+        onClick: (e) => {
+          if (e.object?.id) selectCollectionFromId(e.object.id);
+        },
+        onHover: (e) => {
+          if (e.object && !isGlobalBbox(e.object.bbox))
+            setHoveredCollectionFromId(e.object.id);
+          else setHoveredCollection(null);
+        },
+      })
+    );
+  }
+
   if (visualizeItemBounds) {
     layers.push(
       new GeoJsonLayer({
@@ -138,28 +165,6 @@ export default function Map() {
         pickable: true,
         onClick: (e) => setPickedItem(e.object),
         onHover: (e) => setHoveredItem(e.object),
-      })
-    );
-  }
-
-  if (visualizeCollections) {
-    layers.push(
-      new GeoJsonLayer({
-        id: "collections",
-        data: nonGlobalCollectionBounds,
-        filled: true,
-        getFillColor: (e) =>
-          e.id === hoveredCollection?.id ? collectionFillColor : transparent,
-        getLineColor: collectionLineColor,
-        getLineWidth: lineWidth,
-        lineWidthUnits: "pixels",
-        pickable: true,
-        onClick: (e) => setHrefFromCollectionId(e.object?.id),
-        onHover: (e) => {
-          if (e.object && !isGlobalBbox(e.object.bbox))
-            setHoveredCollectionFromId(e.object.id);
-          else setHoveredCollection(null);
-        },
       })
     );
   }

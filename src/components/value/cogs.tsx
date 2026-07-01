@@ -18,10 +18,7 @@ import { useEffect, useMemo } from "react";
 import type { StacAsset, StacItem } from "stac-ts";
 
 export function CogHref({ asset }: { asset: StacAsset }) {
-  const restrictToThreeBandCogs = useStore(
-    (store) => store.restrictToThreeBandCogs
-  );
-  const geotiffHref = getGeotiffHref(asset, restrictToThreeBandCogs);
+  const geotiffHref = getGeotiffHref(asset);
   const container = geotiffHref
     ? parsePlanetaryComputerContainer(geotiffHref)
     : null;
@@ -53,11 +50,8 @@ function SetCogHref({ href }: { href: string }) {
 }
 
 export function CogSources({ items }: { items: StacItem[] }) {
-  const restrictToThreeBandCogs = useStore(
-    (store) => store.restrictToThreeBandCogs
-  );
   const sources = items
-    .map((item) => itemToSource(item, restrictToThreeBandCogs))
+    .map((item) => itemToSource(item))
     .filter((source) => !!source);
   const planetaryComputerContainerNames = [
     ...new Set(
@@ -129,13 +123,8 @@ function SetCogSources({ sources }: { sources: CogSource[] }) {
 }
 
 export function PagedCogSources({ pages }: { pages: StacItem[][] }) {
-  const restrictToThreeBandCogs = useStore(
-    (store) => store.restrictToThreeBandCogs
-  );
   const pagedSources = pages.map((page) =>
-    page
-      .map((item) => itemToSource(item, restrictToThreeBandCogs))
-      .filter((source) => !!source)
+    page.map((item) => itemToSource(item)).filter((source) => !!source)
   );
   const planetaryComputerContainerNames = [
     ...new Set(
@@ -210,13 +199,9 @@ function SetPagedCogSources({ pagedSources }: { pagedSources: CogSource[][] }) {
   return <></>;
 }
 
-function itemToSource(
-  item: StacItem,
-  restrictToThreeBandCogs: boolean
-): CogSource | null {
-  const [, bestAsset] = getBestAsset(item, restrictToThreeBandCogs);
-  const geotiffHref =
-    bestAsset && getGeotiffHref(bestAsset, restrictToThreeBandCogs);
+function itemToSource(item: StacItem): CogSource | null {
+  const [, bestAsset] = getBestAsset(item);
+  const geotiffHref = bestAsset && getGeotiffHref(bestAsset);
   return geotiffHref && item.bbox
     ? {
         bbox: item.bbox as [number, number, number, number],

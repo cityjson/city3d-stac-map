@@ -76,6 +76,9 @@ export const createItemsSlice: StateCreator<State, [], [], ItemsState> = (
   setPickedItem: (item) => {
     set({
       pickedItem: item,
+      stacGeoparquetItemId: null,
+      selectedCollectionId: null,
+      selectedCollectionHref: null,
     });
   },
   clearPickedItem: () => {

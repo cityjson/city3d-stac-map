@@ -12,12 +12,13 @@ export default function Panel() {
   const href = useStore((store) => store.href);
   const hrefIsParquet = useStore((store) => store.hrefIsParquet);
   const value = useStore((store) => store.value);
+  const collections = useStore((store) => store.collections);
   const pickedItem = useStore((store) => store.pickedItem);
   const stacGeoparquetItemId = useStore((store) => store.stacGeoparquetItemId);
 
-  if (pickedItem) {
+  if (pickedItem && !collections?.length) {
     return <PickedItemPanel pickedItem={pickedItem} />;
-  } else if (stacGeoparquetItemId) {
+  } else if (stacGeoparquetItemId && !collections?.length) {
     return <StacGeoparquetItemIdPanel id={stacGeoparquetItemId} />;
   } else if (value) {
     return <ValuePanel value={value} />;
