@@ -5,7 +5,7 @@
 
 A map-first STAC visualizer with native support for 3D city models. Built as part of a research project at [TU Delft](https://www.tudelft.nl/) to bring [CityJSON](https://www.cityjson.org/), CityGML, and other 3D city model formats into the [STAC](https://stacspec.org/) ecosystem.
 
-**Live demo:** [city3d-stac-map](https://cityjson.github.io/city3d-stac-map/?href=https://storage.googleapis.com/city3d-stac/catalog.json)
+**Live demo:** [city3d-stac-map](https://catalog.open3d.city/?href=https://storage.googleapis.com/city3d-stac/catalog.json)
 
 <!-- markdownlint-disable MD033 -->
 <picture>

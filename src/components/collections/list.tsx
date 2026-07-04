@@ -1,7 +1,7 @@
 import CollectionCard from "@/components/cards/collection";
 import CollectionListItem from "@/components/list-items/collection";
 import type { ListOrCard } from "@/components/section";
-import { List, Stack } from "@chakra-ui/react";
+import { Box, List } from "@chakra-ui/react";
 import type { StacCollection } from "stac-ts";
 
 export default function CollectionList({
@@ -22,10 +22,15 @@ export default function CollectionList({
   }
 
   return (
-    <Stack>
+    <Box
+      display="grid"
+      gap={3}
+      gridTemplateColumns="repeat(auto-fit, minmax(min(260px, 100%), 1fr))"
+      alignItems="stretch"
+    >
       {collections.map((collection) => (
         <CollectionCard key={collection.id} collection={collection} />
       ))}
-    </Stack>
+    </Box>
   );
 }
