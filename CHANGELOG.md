@@ -1,5 +1,41 @@
 # Changelog
 
+## [1.4.0](https://github.com/cityjson/city3d-stac-map/compare/v1.3.4...v1.4.0) (2026-07-04)
+
+
+### Features
+
+* Add 3D City Model STAC extension visualization ([5203588](https://github.com/cityjson/city3d-stac-map/commit/5203588769b97d9df7cf4b94e0e871fd90f4eb7b))
+* add useVisibleItems hook for viewport-filtered map items ([f60c010](https://github.com/cityjson/city3d-stac-map/commit/f60c010125aa172b6910415b57e4d64648e57de4))
+* add viewport culling and zoom-based thinning for map items ([c35c145](https://github.com/cityjson/city3d-stac-map/commit/c35c145350a674c0add1ca29bca3f1a53bfd9a99))
+* advanced filter ([30dda39](https://github.com/cityjson/city3d-stac-map/commit/30dda39122c7cfcdaee4ce78d225453dfba91c63))
+* breadcrums and back button ([c947391](https://github.com/cityjson/city3d-stac-map/commit/c9473912ef2a9d376b8315b8caec1f2f9750f7b5))
+* change theme ([3cf2acc](https://github.com/cityjson/city3d-stac-map/commit/3cf2acc3650aea2125dfa33c6b31885e0c9c6ea3))
+* change theme and icons ([758f424](https://github.com/cityjson/city3d-stac-map/commit/758f42444faa04c84b5b91b897bdc544b408d71f))
+* Display City3D metadata from STAC Collection summaries in addition to item properties. ([9836096](https://github.com/cityjson/city3d-stac-map/commit/9836096b3e0fade2060af29e779de5e036efba7e))
+* show notice when map items are thinned at low zoom ([ffbc8b0](https://github.com/cityjson/city3d-stac-map/commit/ffbc8b0d4e113fb198f1dafe89bea71a684aab26))
+* use viewport-filtered items on the map layer ([a7b6b68](https://github.com/cityjson/city3d-stac-map/commit/a7b6b687bf9c9f37e303981ff9e1f3001a22beff))
+
+
+### Bug Fixes
+
+* address sidebar bottlenecks for collections with many items ([544ae4a](https://github.com/cityjson/city3d-stac-map/commit/544ae4a8c737bceccdfe5f63f3c66cb53075c697))
+* apply thinning on initial load when bbox/zoom are not yet set ([c5f899d](https://github.com/cityjson/city3d-stac-map/commit/c5f899d9e15a586d644023f9b79d0b7dea5ac85f))
+* collection info ([72ae78e](https://github.com/cityjson/city3d-stac-map/commit/72ae78e84fb5f5ef40d11cf21501b8ea8c6edbe1))
+* geoparquet item ([25c76fc](https://github.com/cityjson/city3d-stac-map/commit/25c76fc3316d2d5f387305586b2eb27e4d750e6f))
+* icon ([e18cdb4](https://github.com/cityjson/city3d-stac-map/commit/e18cdb4b80176d4cc88954a702a9cc6e01f285b1))
+* keep showing collections ([8dbc5b9](https://github.com/cityjson/city3d-stac-map/commit/8dbc5b90c86f711ce3a883391022f0ad2981654f))
+* prevent rendering 60K+ links and item components for large collections ([55bf496](https://github.com/cityjson/city3d-stac-map/commit/55bf496f984cc85a8547ad0dd10ff5e4179298f7))
+* remove images ([79955ed](https://github.com/cityjson/city3d-stac-map/commit/79955ed2ec42218df2c77f9471845912492943f4))
+* simplify GitHub token usage in release workflow ([4403d87](https://github.com/cityjson/city3d-stac-map/commit/4403d87fb4bcac208cb3f037878ea195b49c4815))
+* type ([f756f2d](https://github.com/cityjson/city3d-stac-map/commit/f756f2d1c94862a8bf691bc98d37721d13133159))
+* update deployment configuration and improve live demo link ([c68f26b](https://github.com/cityjson/city3d-stac-map/commit/c68f26b1642743d72896cb6e4e9ffe2892643c99))
+
+
+### Reverts
+
+* remove plausible analytics snippet ([#353](https://github.com/cityjson/city3d-stac-map/issues/353)) ([d11857e](https://github.com/cityjson/city3d-stac-map/commit/d11857ed1b23549de3722f3adbd4b479cd48a683))
+
 ## [1.3.4](https://github.com/developmentseed/stac-map/compare/v1.3.3...v1.3.4) (2026-02-23)
 
 
